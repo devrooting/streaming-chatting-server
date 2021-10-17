@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>WebSocket Test</title>
+    <script language="JavaScript" type="text/javascript">
+
+        let url = "127.0.0.1";
+        let webSocket = new WebSocket(`ws://${url}:8080`);
+        let output;
+
+        window.addEventListener("load", init, false);
+
+        function init() {
+
+            output = document.getElementById("output");
+
+            if(window.WebSocket) {
+                printLog("[WebSocket] 웹소켓 사용 가능");
+                // 웹소켓 연결
+                onConnect();
+            } else {
+                printLog("[WebSocket] 웹소켓 사용 불가능");
+            }
+        }
+
+        function onConnect() {
+
+            webSocket.onopen = function (event) { onOpen(event) };
+            webSocket.onclose = function (event) { onClose(event) };
+            webSocket.onmessage = function (event) { onMessage(event) };
+            webSocket.onerror = function (event) { onError(event) };
+        }
+
+        function onOpen(event) {
+
+            let msg = "안녕하세요";
+
+            printLog("[WebSocket] wsOpen()")
+            printLog("<span style='color: blue'> [WebSocket] 발신 : " + msg + "</span>")
+
+            webSocket.send(msg);
+        }
+
+        function onClose(event) {
+            printLog("[WebSocket] onClose()")
+            webSocket.close();
+        }
+
+        function onMessage(event) {
+            printLog("[WebSocket] onMessage()")
+            printLog("<span style='color: blue'> [WebSocket] 수신 : " + event.data + "</span>")
+        }
+
+        function onError(event) {
+            printLog("[WebSocket] onError()")
+            printLog("<span style='color: blue'> [WebSocket] 에러 : " + event.data + "</span>")
+        }
+
+        // 화면에 출력
+        function printLog(message){
+            var text = document.createElement("p");
+            text.style.wordWrap = "break-word";
+            text.innerHTML = message;
+            output.appendChild(text);
+        }
+
+        // 메세지 전달 (netty 서버에)
+        function sendMsg (){
+
+            var inputForm = document.inputForm;
+            var msg = inputForm.message.value;
+
+            webSocket.send(msg);
+            printLog("[WebSocket] sendMsg()");
+            printLog("<span style='color: blue'> [WebSocket] 발신 : " + msg + "</span>");
+        }
+    </script>
+</head>
+<body>
+<h1>WebSocket Test</h1>
+<form name="inputForm" action="" method="post">
+    메세지 : <input type="text" name="message">
+    <input type="button" onclick="sendMsg()" value="보내기">
+</form>
+<hr color="red"/>
+<div id="output"></div>
+</body>
+</html>
